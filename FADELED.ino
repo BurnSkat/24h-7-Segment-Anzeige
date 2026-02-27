@@ -1,29 +1,30 @@
-int REDLED = 5;
-int GREENLED = 6;
-int BLUELED = 3;
-int brightnessRED = 0;
-int brightnessGREEN = 0;
-int brightnessBLUE = 0;
-int fadeAmount = 5;
+// Updated FADELED.ino code to make the LEDs fade in sequence
+
+#define LED_COUNT 8
+#define FADE_DELAY 100
+
+int ledPins[LED_COUNT] = {2, 3, 4, 5, 6, 7, 8, 9};
 
 void setup() {
-  pinMode(REDLED, OUTPUT);
-  pinMode(GREENLED, OUTPUT);
-  pinMode(BLUELED, OUTPUT);
+  for (int i = 0; i < LED_COUNT; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
 }
 
 void loop() {
-    analogWrite(REDLED, brightnessRED);
-    analogWrite(GREENLED, brightnessGREEN);
-    analogWrite(BLUELED, brightnessBLUE);
-    brightnessRED = brightnessRED + fadeAmount;
-    brightnessGREEN = brightnessGREEN + fadeAmount;
-    brightnessBLUE = brightnessBLUE + fadeAmount;
-    if (brightnessRED == 0 || brightnessRED == 255)
-    if (brightnessGREEN == 0 || brightnessGREEN == 255)
-    if (brightnessBLUE == 0 || brightnessBLUE == 255)
-    {
-    fadeAmount = -fadeAmount;
-    }
-    delay(20);
+  for (int i = 0; i < LED_COUNT; i++) {
+    fadeInSequence(i);
   }
+}
+
+void fadeInSequence(int index) {
+  for (int brightness = 0; brightness <= 255; brightness++) {
+    analogWrite(ledPins[index], brightness);
+    delay(FADE_DELAY);
+  }
+  delay(300); // Hold at full brightness
+  for (int brightness = 255; brightness >= 0; brightness--) {
+    analogWrite(ledPins[index], brightness);
+    delay(FADE_DELAY);
+  }
+}
