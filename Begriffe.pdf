@@ -1,0 +1,220 @@
+# Terminologie zu Takt, Synchronität, Rollenmodellen, Leitungen und Topologien in Digital- und Netzwerktechnik
+
+## Executive Summary
+
+Die bereitgestellten Notizen sind in dieser Sitzung nicht als Bild/Scan abrufbar; damit sind konkrete Formulierungen, Skizzen oder Kontextbeispiele aus dem Originalmaterial **nicht verifizierbar** (unspezifiziert). Der vorliegende Bericht erläutert daher die in der Anfrage **explizit genannten Begriffe** in technisch kohärenter Prosa und ordnet sie in gängige Modelle aus Digitaltechnik, Embedded-Kommunikation und Netzwerktechnik ein.
+
+Technisch lassen sich die Begriffe in drei Ebenen bündeln: (a) **Zeit-/Taktbezug** (Clock/Takt, synchron/asynchron), (b) **Kommunikationsbeziehung und Richtung** (Master/Slave bzw. Alternativen, uni-/bidirektional, seriell/parallel, Syntax/Semantik) und (c) **physische Realisierung** (Datenleitung/Steuerleitung, Kabel/Leitung, Topologie). Praktische Norm-/Industriebeispiele zeigen, wie eng diese Ebenen zusammenhängen: Der I²C‑Bus ist ein serieller Bus mit **Datenleitung (SDA)** und **Taktleitung (SCL)** und wurde in der aktuellen Spezifikation sprachlich von „master/slave“ auf **„controller/target“** umgestellt [NXP‑I2C]. citeturn5view0turn5view1
+
+Parallel dazu gibt es eine gut belegte Bewegung zu **inklusiverer Terminologie** in Standardisierung und Dokumentation: entity["organization","NIST","us standards institute"] empfiehlt u. a. das Meiden von „master/slave“ und das Vermeiden geschlechtlicher Zuschreibungen für unbelebte Objekte (z. B. „male/female connectors“) und weist zugleich auf mögliche **Verständlichkeits-/Kompatibilitätsrisiken** bei Ersatzbegriffen hin [NISTIR‑8366]. citeturn13view0turn13view1 entity["organization","ISO","standards organization"] und entity["organization","IEC","electrotechnical commission"] deklarieren „master‑slave“ als problematische bildhafte Sprache (u. a. Bezug zu Versklavung bzw. Dominanzmetaphern) und empfehlen u. a. **phasenweise Ablösung** in Revisionen, um Verwirrung zu vermeiden [ISO/IEC‑Guide]. citeturn10view0turn10view2turn9view0
+
+In der Praxis wird Ersatzterminologie **kontextspezifisch** gewählt: In entity["organization","IETF","internet standards body"]‑OSPF‑Dokumenten wurden „Master/Slave“ zu **Leader/Follower** geändert [IETF‑RFC9454]. citeturn2search13turn4search2 Für IEEE‑PTP (Präzisionszeitsynchronisation) benennt die entity["organization","IEEE","engineering association"]‑Standardfamilie mit IEEE 1588g‑2022 **Alternative** zu „master/slave“ (z. B. timeTransmitter/timeReceiver) [IEEE‑1588g]. citeturn1search24turn1search26 Für Steckverbinder ist „Plug/Receptacle“ (Stecker/Buchse) in prominenten Schnittstellenspezifikationen explizit verankert, z. B. im USB‑Type‑C‑Standard [USB‑Type‑C]. citeturn8view0turn8view1
+
+## Ausgangslage und methodisches Vorgehen
+
+Die Anfrage nennt als „deutsche Notizen“ eine Liste von Fachbegriffen (z. B. Takt/Clock, Synchron/Asynchron, Master/Slave, Topologie). Da kein Originalbild/Originaltext in dieser Sitzung vorliegt, sind (1) **Reihenfolge**, (2) **Markierungen/Unterstreichungen**, (3) **Skizzen** und (4) **konkrete Beispiele** aus dem Notizmaterial **unspezifiziert**.
+
+Die Begriffsarbeit erfolgt daher als:  
+(1) technisch saubere Definitionen und Abgrenzungen,  
+(2) Verknüpfung mit normnahen oder industrienahen Referenzen (Standards, RFCs, Hersteller‑Spezifikationen),  
+(3) Einordnung kontroverser Begriffe samt Alternativen, Migrationsaspekten und Empfehlungssprache für Dokumentation. Maßgeblich sind insbesondere [NISTIR‑8366], [ISO/IEC‑Guide], [ISO/IEC‑List], [NXP‑I2C], [IETF‑RFC9454], [IEEE‑1588g], [USB‑Type‑C], ergänzt um Referenzen zu Syntax/Semantik aus IETF‑RFC‑Dokumenten. citeturn13view0turn9view0turn22view0turn5view1turn2search13turn1search24turn8view0turn1search4turn1search1
+
+## Zentrale Begriffe: Zeit, Synchronität, Richtung, Medium und Topologie
+
+**Takt / Clock**  
+Ein „Takt“ ist in der Digitaltechnik ein periodisches Zeitreferenzsignal, das festlegt, **wann** Zustände abgetastet oder weitergeschaltet werden (z. B. in synchronen Schnittstellen). In Bussystemen ist der Takt häufig als eigene Leitung realisiert (Beispiel: I²C nennt explizit eine serielle Datenleitung SDA und eine serielle Taktleitung SCL) [NXP‑I2C]. citeturn5view0  
+In paketbasierten Hochgeschwindigkeits‑Links kann Taktinformation auch **implizit** übertragen werden (Clock‑Recovery), während in klassischen Mikrocontroller‑Bussen der explizite Clock‑Pin weiterhin typisch ist (SCL bei I²C; SCLK/CLK bei SPI‑Varianten). Der „Clock“-Begriff ist damit konzeptionell übertragbar, aber physisch unterschiedlich umgesetzt. citeturn5view0turn4search4
+
+**Synchron / Asynchron**  
+„Synchron“ bedeutet im Kommunikationskontext: Sender und Empfänger teilen sich einen expliziten oder impliziten Zeitbezug, der Bit‑/Symbolgrenzen stabil definiert. Klassische synchrone serielle Busse sind z. B. I²C (Taktleitung SCL) [NXP‑I2C]. citeturn5view0  
+„Asynchron“ bedeutet: Es existiert **kein** gemeinsam geführtes Taktsignal; stattdessen stimmen die Partner Parameter wie Baudrate ab und markieren Rahmen über Start/Stop‑Mechanismen. entity["company","Microchip Technology","semiconductor vendor"] beschreibt für USART‑Asynchronbetrieb explizit, dass „kein clock signal“ vorhanden ist und getrennte Pins für Senden/Empfangen genutzt werden, einschließlich gleichzeitiger Übertragung (Full‑Duplex) [Microchip‑USART]. citeturn17search1 Ergänzend formuliert entity["company","Texas Instruments","semiconductor vendor"] in einer UART‑Lerneinheit, UART‑Kommunikation erfolge ohne geteiltes Clock‑Signal [TI‑UART]. citeturn17search0
+
+**Master / Slave (als Rollenmodell)**  
+Das Rollenmodell „Master/Slave“ ist historisch breit in Technikdomänen verwendet worden, allerdings mit **uneinheitlicher Semantik**: In manchen Systemen steuert der Master die Kommunikation (z. B. durch Takt/Chip‑Select), in anderen ist der „Master“ primär die Referenzinstanz (z. B. Zeitquelle). Genau diese Mehrdeutigkeit ist ein Grund, warum viele Organisationen zu **deskriptiveren** Paaren wechseln. citeturn13view1turn5view1turn1search24  
+Ein aktuelles, gut belegtes Beispiel ist I²C: Die Spezifikation wurde so geändert, dass „master/slave“ durch „controller/target“ ersetzt wird, u. a. zur Angleichung an eine Inclusive‑Language‑Initiative [NXP‑I2C]. citeturn5view1turn7view1
+
+**Alternative Rollennamen (als Prinzip)**  
+„Alternative Rollennamen“ sind nicht nur Euphemismen, sondern oft **präzisere** Fachsprache. Leitlinien betonen, Ersatzbegriffe sollen technisch äquivalent, konsistent und übersetzbar sein. [ISO/IEC‑Guide] empfiehlt, wo möglich, inklusive Terminologie zu wählen; wo „terms of art“ stark verankert sind, empfiehlt sie phasenweisen Ersatz (inkl. paralleler Darstellung in Übergangsphasen) [ISO/IEC‑Guide]. citeturn10view2turn9view0  
+[NISTIR‑8366] empfiehlt ebenfalls, auf „common usage“ nicht reflexhaft zu vertrauen und auf mögliche Verständlichkeitsprobleme durch Ersatzterminologie zu achten; zugleich werden „master/slave“ und „male/female connectors“ als zu vermeidende Beispiele genannt [NISTIR‑8366]. citeturn13view0
+
+**Parallel / Seriell**  
+„Parallel“ bezeichnet in der Datenübertragung die gleichzeitige Übermittlung aller Bits eines Zeichens/Bytes über **verschiedene Pfade/Leiter**. Eine IEEE‑Glossar‑Definition formuliert: parallele Übertragung ist die simultane Übertragung aller Bits, wobei jedes Bit einen anderen Pfad nutzt [IEEE‑Glossary‑610.7]. citeturn20view0turn21view0  
+„Seriell“ bedeutet entsprechend: Bits werden nacheinander über eine (logische) Datenleitung oder ein Datenleitungspaar übertragen. entity["company","IBM","technology company"] beschreibt, dass serielle Ports Daten von einer parallelen Form in eine sequentielle Bitfolge umwandeln, übertragen und anschließend wieder parallel rekonstruieren [IBM‑Serial]. citeturn19search14  
+In den Notizen ist die Kopplung zu „Leitungen/Kabeln“ besonders naheliegend: Serielle Protokolle reduzieren Leitungszahl (Kosten, Bauraum), während parallele Bussysteme intern (z. B. Speicherbusse) weiterhin sinnvoll sein können. citeturn19search14turn20view0
+
+**Syntax**  
+„Syntax“ ist die **Form** einer Darstellung: die Zeichenfolge, Struktur und Grammatikregeln, nach denen ein Protokollelement zulässig ist. In Internet‑Standards ist dies häufig formalisiert, z. B. über ABNF (Augmented Backus‑Naur Form). Der IETF‑Standard zu ABNF ist explizit eine „Syntax Specification“ [RFC‑ABNF]. citeturn1search4turn1search12  
+In der Praxis heißt das: Ein Empfänger kann syntaktisch korrekt parsen, ohne die Bedeutung vollständig zu verstehen (z. B. unbekannte, aber wohldefinierte Extensions).
+
+**Semantik**  
+„Semantik“ beschreibt die **Bedeutung** bzw. das daraus folgende Verhalten: Was ein syntaktisch korrektes Element *bewirkt* (Zustandsänderungen, Nebenwirkungen, Verarbeitungsregeln). Der Titel „HTTP Semantics“ unterstreicht diese Trennung in Internet‑Architekturen sehr deutlich [RFC‑HTTP‑Semantics]. citeturn1search1  
+Viele Protokollspezifikationen formulieren explizit „syntax and semantics“ für Header‑Felder und Mechanismen (z. B. in HTTP‑Spezifikationen) [RFC‑HTTP‑Auth]. citeturn1search20
+
+**Unidirektional / Bidirektional**  
+„Unidirektional“ bedeutet Datenfluss nur in eine Richtung; „bidirektional“ bedeutet, dass beide Enden senden können (nicht zwingend gleichzeitig). I²C wird als „bidirectional 2‑wire bus“ beschrieben [NXP‑I2C]. citeturn5view0  
+Wichtig ist die physische Ausprägung: Bidirektional kann über (a) eine Leitung mit Richtungsumschaltung (Half‑Duplex), (b) zwei separate Leitungen (TX/RX, Full‑Duplex) oder (c) über geteilte Busmedien mit Arbitration erfolgen. Beispiel: Microchip beschreibt für asynchronen USART‑Betrieb getrennte Pins für TX und RX und gleichzeitige Sende-/Empfangsfähigkeit als Full‑Duplex [Microchip‑USART]. citeturn17search1  
+Selbst innerhalb einer Familie kann es unidirektionale Betriebsarten geben: Die I²C‑Spezifikation nennt „Ultra Fast‑mode“ als **unidirektionalen** Modus [NXP‑I2C]. citeturn5view0
+
+**Daten / Leitung / Kabel**  
+„Daten“ sind der logische Inhalt (Bits/Bytes/Frames). Eine „Leitung“ ist der elektrische Übertragungspfad (physischer Leiter oder Leiterpaar). Ein „Kabel“ ist die mechanische/elektrische Gesamteinheit aus einer oder mehreren Leitungen inkl. Schirmung/Steckern. Diese Unterscheidung ist für saubere Dokumentation zentral, weil Protokollbegriffe sonst mit mechanischen Begriffen kollidieren.  
+Der USB‑Type‑C‑Standard illustriert diese Ebenen besonders klar: Er definiert „receptacles, plug and cables“ als separate Gegenstände der Spezifikation [USB‑Type‑C]. citeturn8view0 In der Signalbelegung sind dedizierte Datenpfade (TX/RX‑Paare) und **Konfigurationspins (CC)** sichtbar, was zugleich zeigt, dass nicht jede Leitung „Nutzdaten“ trägt [USB‑Type‑C]. citeturn8view1
+
+**Steuerleitung**  
+Eine „Steuerleitung“ transportiert typischerweise Signale zur **Kontrolle/Koordination**: Takt, Chip‑Select, Modus‑/Rollen‑Aushandlung, Handshake, Reset, Interrupt etc. Der IEEE‑Glossarbegriff „handshaking“ beschreibt den Austausch vorbestimmter Signale/Steuermaßnahmen zwischen Systemen beim initialen Austausch [IEEE‑Glossary‑610.7]. citeturn21view1  
+Beispiele aus Standardspezifikationen:  
+* I²C nutzt SCL als serielle Taktleitung (Steuer-/Timingfunktion) und SDA als Datenleitung [NXP‑I2C]. citeturn5view0  
+* USB‑Type‑C führt CC‑Pins, die für Orientierung/Erkennung/Power‑Bezug genutzt werden, getrennt von klassischen Datenpaaren [USB‑Type‑C]. citeturn8view1  
+Die Notizen nennen „Steuerleitung“ separat; ohne Originalkontext bleibt offen (unspezifiziert), ob damit speziell Handshake‑Leitungen (z. B. RTS/CTS) oder allgemeiner alle Nicht‑Datenleitungen gemeint sind.
+
+**Topologie**  
+„Topologie“ beschreibt die Anordnung von Knoten und Verbindungen; in der Netzwerktechnik unterscheidet man häufig **physische** Topologie (Verdrahtung) und **logische** Topologie (Datenfluss/Weiterleitung). entity["company","Cisco","networking company"] beschreibt Topologie als Abbildung, wie Netzknoten (u. a. Switches/Router) platziert und verbunden sind und wie Daten fließen [Cisco‑Topology]. citeturn17search22  
+Topologie ist unmittelbar mit den zuvor genannten Begriffen gekoppelt: Ein Bus (mehrere Teilnehmer auf gemeinsamen Leitungen) stellt andere Anforderungen an Arbitration/Timing als eine Punkt‑zu‑Punkt‑Verbindung; Stern‑Topologien delegieren häufig zentrale Steuer-/Switch‑Funktionen an ein Zentrum. In I²C ist das busartige Teilen der Leitungen (SDA/SCL) konzeptionell angelegt [NXP‑I2C]. citeturn5view0
+
+## Kontroverse Terminologie: Master/Slave und Male/Female
+
+**Master/Slave**
+
+*Historische Herkunft (technikhistorisch, nicht moralhistorisch)*  
+In vielen Teildisziplinen der Elektrotechnik war „master/slave“ über Jahrzehnte ein etabliertes Metaphernpaar für Steuer‑/Unterordnungsbeziehungen. In IEEE‑PTP wurde bei der Erstveröffentlichung (2002) auf damals gängige Terminologie zurückgegriffen; spätere Arbeiten diskutieren die Umstellung auf alternative Begriffe (konkret über Amendments) [IEEE‑1588g]. citeturn1search24  
+Als Indiz für die Breite der Umstellung dient, dass inclusive‑language Leitfäden in Standardisierungsorganisationen heute explizit „master/slave“ als zu vermeidendes Beispiel aufführen [NISTIR‑8366] und [ISO/IEC‑Guide]. citeturn13view0turn10view0
+
+*Technische Bedeutung (was „Master“ und „Slave“ praktisch meinen kann)*  
+Technisch ist entscheidend, **welche Rolle** gemeint ist, denn „Master“ kann je nach Domäne bedeuten:  
+(1) *Controller/Initiator*, der Transaktionen startet und ggf. den Takt vorgibt (z. B. klassische Bussteuerung), oder  
+(2) *Primäre Referenzquelle*, z. B. Zeitreferenz, während andere sich daran ausrichten (Zeitverteilung).  
+Genau diese Mehrdeutigkeit motiviert Ersatz durch rollenbeschreibende Paare wie controller/target oder timeTransmitter/timeReceiver [NXP‑I2C], [IEEE‑1588g]. citeturn5view1turn1search24turn1search26
+
+*Praktische Beispiele (Norm-/Industriebreite)*  
+– **I²C**: „controller/target“ ersetzt „master/slave“ in der NXP‑Spezifikation v7, explizit dokumentiert in der Revisionshistorie [NXP‑I2C]. citeturn5view1turn7view1  
+– **OSPF (IETF)**: RFC 9454 ersetzt „master/slave“ durch „leader/follower“ und benennt sogar ein Bit von „MS“ in „Leader (L) bit“ um [IETF‑RFC9454]. citeturn4search2turn2search13  
+– **IEEE 1588 PTP**: Die IEEE‑SA‑Referenzseite weist aus, dass Amendment 1588g‑2022 alternative Begriffe für „master/slave“ (und Port‑States) identifiziert; Hersteller-/Implementierungsdokumente nutzen z. B. timeTransmitter/timeReceiver [IEEE‑1588g]. citeturn1search24turn1search26  
+– **Feldbus-/Industriekommunikation**: entity["organization","CAN in Automation","can industry association"] empfiehlt in einem Style‑Guide, „master/slave“ zu ersetzen (u. a. controller/device, producer/consumer, commander/responder) [CiA‑Style]. citeturn16view0
+
+*Warum kontrovers?*  
+Zwei Linien sind in Standard‑Leitfäden prominent:  
+(1) Die Metapher transportiert Konnotationen von **Dominanz/Unterwerfung** und kann als nicht neutral wahrgenommen werden. entity["organization","ISO/IEC","joint standards system"] formuliert, „master‑slave“ sei bildhafte Sprache, die eine Beziehung zwischen „enslaver“ und „enslaved person“ (oder controlling/controlled parts) beschreibt und als nicht akzeptabel gelten soll [ISO/IEC‑Guide]. citeturn10view0turn9view0  
+(2) Sie ist oft fachlich **unpräzise**, weil unterschiedliche Systeme das Paar anders belegen (Steuerinstanz vs. Referenzinstanz). NIST empfiehlt, eher „good usage“ und kontextpassende, deskriptive Begriffe zu wählen [NISTIR‑8366]. citeturn13view0
+
+*Alternative neutrale Begriffe (listen und vergleichen – kontextgebunden)*  
+Autoritative Listen geben typische Ersatzpaare vor, jedoch ohne „one size fits all“:  
+– ISO/IEC empfiehlt u. a. active/standby, leader/follower, primary/replica, primary/secondary, writer/reader als Ersatz für master/slave [ISO/IEC‑List]. citeturn23view0  
+– NIST/INCITS führt u. a. main/secondary, primary/secondary, primary/replica, host/target, leader/follower, orchestrator/worker, initiator/responder auf [NISTIR‑8366]. citeturn13view1turn13view0  
+– Für PTP‑Zeitverteilung werden timeTransmitter/timeReceiver als explizite Alternativen genannt [IEEE‑1588g], [ISO/IEC‑List]. citeturn1search24turn23view0
+
+*Pros/Cons einer Umbenennung (Kompatibilität, Klarheit, Standards)*  
+**Vorteile:** präzisere, kontextnahe Rollenbeschreibung; bessere Übersetzbarkeit; reduzierte riskante Konnotationen; bessere Anschlussfähigkeit an moderne Style‑Guides [NISTIR‑8366], [ISO/IEC‑Guide]. citeturn13view0turn9view0  
+**Nachteile/Risiken:** Verständlichkeitsprobleme bei gemischten Begriffswelten; Suchbarkeit/Tooling/Legacy‑Implementierungen; potenzielle Inkonsistenz, wenn Ersatzbegriffe nicht exakt äquivalent gewählt werden. NIST weist explizit darauf hin, dass das Vermeiden bestimmter Begriffe „comprehension issues“ einführen kann [NISTIR‑8366]. citeturn13view0  
+**Migrationsstrategie:** ISO/IEC empfiehlt phasenweisen Ersatz für „terms of art“, inkl. Übergangsphase mit neuer Terminologie zuerst und alter in Klammern (Text) bzw. als Kommentar (Code), um Betrieb und Verständlichkeit zu erhalten [ISO/IEC‑Guide]. citeturn10view2turn9view0
+
+*Empfohlene Terminologie für technische Dokumentation*  
+Empfehlung (normnah): **kontextdeskriptiv** statt metaphorisch; bei Protokollen Rollen an Aktionen koppeln (z. B. initiator/responder, controller/target); bei Zeitverteilung explizit timeTransmitter/timeReceiver; Übergangsweise Mapping angeben (neuer Begriff, alter Begriff in Klammern) gemäß [ISO/IEC‑Guide]. citeturn10view2turn13view0turn23view0
+
+**Male/Female (Stecker/Buchse)**
+
+*Historische Herkunft*  
+„Male/Female“ wurde in technischen Gewerken traditionell als metaphorische Kurzbeschreibung für komplementäre Steckverbinderhälften genutzt. Dass diese Zuschreibung heute als „unnecessarily gendered“ bewertet wird, ist in aktuellen Standardleitfäden explizit festgehalten: ISO/IEC listet „male connector“/„female connector“ als unnötig gegendert, mit empfohlenen Alternativen [ISO/IEC‑List]. citeturn23view1turn23view2  
+Die ISO/IEC‑Leitlinie formuliert als konkretes Beispiel: „Electrical plugs and sockets should not be described as ‘male’ or ‘female’“ [ISO/IEC‑Guide]. citeturn10view1turn9view0
+
+*Technische Bedeutung*  
+Technisch geht es um **Mating‑Kompatibilität** (geometrisches/elektrisches Gegenstück), nicht um Geschlecht. In vielen Spezifikationen ist die neutralere Terminologie bereits Standard: Der USB‑Type‑C‑Standard definiert ausdrücklich „receptacles“ (Buchsen) und „plugs“ (Stecker) sowie Kabel [USB‑Type‑C]. citeturn8view0turn8view1  
+Damit wird die technische Beziehung (Stecker wird in Buchse gesteckt) präzise beschrieben, ohne metaphorische Zuschreibung.
+
+*Praktische Beispiele*  
+– **USB Type‑C**: Ein zentrales Kapitel und viele Figuren unterscheiden „Plug“ und „Receptacle“; die Spezifikation definiert genau diese Objekte [USB‑Type‑C]. citeturn8view0turn8view1  
+– **Style‑Guides in Industrieverbänden**: CAN in Automation empfiehlt, „male/female“ durch z. B. plug/pin/prong vs. receptacle/socket/slot oder convex/concave zu ersetzen [CiA‑Style]. citeturn16view0turn15view0  
+– **ISO/IEC Ersatzliste**: „male connector“ → plug/pin/prong oder convex/external threading; „female connector“ → receptacle/socket/slot oder concave/internal threading [ISO/IEC‑List]. citeturn23view1turn23view2
+
+*Warum kontrovers?*  
+Die Kontroverse wird in Leitfäden weniger als technische Frage, sondern als Frage unnötiger Geschlechtszuschreibung beschrieben. NIST nennt explizit „male/female connectors“ als Beispiel für zu meidende Gender‑Zuschreibung bei unbelebten Objekten [NISTIR‑8366]. citeturn13view0 ISO/IEC klassifiziert dies ausdrücklich als „unnecessarily gendered terminology“ und rät zur Vermeidung [ISO/IEC‑Guide]. citeturn10view1turn9view0
+
+*Alternative neutrale Begriffe (listen und vergleichen)*  
+Im Kern existieren zwei robuste Alternativenfamilien, die auch in Standards/Guides auftauchen:  
+(1) **Funktional/objektbezogen**: Stecker/Buchse = plug/receptacle; auch socket/slot (Buchse), pin/prong (Stift/Stecker) [ISO/IEC‑List], [USB‑Type‑C]. citeturn23view1turn8view0  
+(2) **Geometrisch**: convex/concave oder external/internal threading (v. a. bei Gewinden) [ISO/IEC‑List], [CiA‑Style]. citeturn23view1turn16view0
+
+*Pros/Cons einer Umbenennung*  
+**Vorteile:** neutralere Sprache; bessere Übersetzbarkeit; präzisere technische Beschreibung (plug/receptacle beschreibt tatsächlich die Funktion); Anschlussfähigkeit an ISO/IEC‑ und NIST‑Leitlinien [ISO/IEC‑Guide], [NISTIR‑8366]. citeturn10view1turn13view0  
+**Nachteile/Risiken:** Legacy‑Teilenummern, CAD‑Bibliotheken, Fertigungsunterlagen und Umgangssprache nutzen oft M/F‑Abkürzungen; kurzfristig kann es zu Mehrdeutigkeit kommen, wenn Umstellung ohne Mapping erfolgt. ISO/IEC empfiehlt daher bei stark verankerten „terms of art“ eine phasenweise Migration [ISO/IEC‑Guide]. citeturn10view2
+
+*Empfohlene Terminologie für technische Dokumentation*  
+Für Dokumentationen, Spezifikationen und Zeichnungen empfiehlt sich: **Stecker/Buchse** bzw. **plug/receptacle** als Default; bei Stiftleisten/Pin‑Systemen zusätzlich **pin/socket**; bei Gewinden **Außen-/Innengewinde** oder convex/concave, abhängig von Normsprache. Diese Empfehlung deckt sich mit ISO/IEC‑Beispiel („plugs and sockets“ statt male/female) sowie der ISO/IEC‑Ersatzliste [ISO/IEC‑Guide], [ISO/IEC‑List]. citeturn10view1turn23view1
+
+## Alternative Rollennamen im Vergleich
+
+Die folgende Tabelle ist als **Dokumentationshilfe** zu verstehen: Ein „alternativer Begriff“ ist nur dann gut, wenn er die technische Rolle präziser trifft als der traditionelle Begriff und konsistent im gesamten Dokument/Produkt verwendet wird (ISO/IEC empfiehlt Konsistenz und direkte Äquivalenz; ggf. Übergangsphasen) [ISO/IEC‑Guide]. citeturn10view2turn9view0
+
+| Traditional term | Alternative(s) | Context / use case | Advantages | Disadvantages |
+|---|---|---|---|---|
+| Master / Slave | controller / target | Bussteuerung (Embedded‑Busse, z. B. I²C‑Rollen) | Handlungsorientiert (wer steuert/wer wird adressiert); bereits in I²C‑Spezifikation etabliert | „Target“ kann je nach Kontext missverstanden werden (Ziel vs. Gerät) [NXP‑I2C] citeturn5view1 |
+| Master / Slave | leader / follower | Protokollzustands-/Aushandlungsrollen (z. B. OSPF) | Bildet Aushandlungslogik gut ab; in IETF‑RFC konkret umgesetzt | Nicht immer passend, wenn nicht „Führung“, sondern „Referenz“ gemeint ist [IETF‑RFC9454] citeturn4search2turn2search13 |
+| Master / Slave | primary / secondary | Redundanz/Failover, Prioritätsmodelle | Intuitiv bei Hierarchien/Redundanz; in Leitfäden genannt | Unklar, ob „secondary“ aktiv mitarbeitet oder nur Standby ist [NISTIR‑8366] citeturn13view1 |
+| Master / Slave | primary / replica | Replikation/Kopienmodelle (DB, Storage) | Präzise zur Datenherkunft (Original vs. Kopie); in Leitfäden genannt | Nicht passend bei Steuer-/Taktrollen [ISO/IEC‑List] citeturn23view0 |
+| Master / Slave | active / standby | Verfügbarkeits-/HA‑Setups | Semantik zur Betriebsart klar; in Leitfäden genannt | Passt nicht zu „gleichzeitig aktiv“ verteilten Systemen [ISO/IEC‑List] citeturn23view0 |
+| Master / Slave | initiator / responder | Request/Response‑Protokolle, Transaktionsstart | Sehr deskriptiv (wer initiiert); in NIST/INCITS‑Beispielen genannt | Bei Multi‑Initiator‑Systemen muss man präzisieren (welcher Initiator?) [NISTIR‑8366] citeturn13view1 |
+| Master / Slave | writer / reader | Datenfluss-/Zugriffsmodelle | Funktional präzise (Schreib-/Leserolle); in ISO/IEC‑Liste genannt | Nicht passend bei Steuer-/Clockrollen [ISO/IEC‑List] citeturn23view0 |
+| Master (PTP) / Slave (PTP) | timeTransmitter / timeReceiver | Zeitsynchronisation (IEEE 1588 PTP) | Rollenpräzise (sendet Zeit / empfängt Zeit); explizit als Alternative eingeführt | Längere Begriffe; Übergangsphase nötig, da Legacy‑Terminologie verbreitet [IEEE‑1588g] citeturn1search24turn1search26 |
+| Master / Slave | orchestrator / worker | Verteilte Ausführung/Jobsteuerung | Abbild „koordiniert Arbeit“ gut; in NIST/INCITS‑Beispielen genannt | „Worker“ kann je nach Kontext falsch konnotiert oder zu generisch sein [NISTIR‑8366] citeturn13view1 |
+| Male / Female (connectors) | plug / receptacle | Steckverbinder (allgemein; z. B. USB) | Standardnah; funktionsbeschreibend; explizit in USB‑Type‑C‑Spezifikation | Bei manchen Bauformen muss zusätzlich „pin/socket“ für Kontaktform ergänzt werden [USB‑Type‑C] citeturn8view0turn8view1 |
+
+## Diagramme
+
+```mermaid
+sequenceDiagram
+    participant Primary as Primary (Controller)
+    participant Secondary as Secondary (Target)
+
+    Primary->>Secondary: Command / Request
+    Secondary-->>Primary: Response / Data
+    Note over Primary,Secondary: Rollen können je nach Protokoll fix oder aushandelbar sein
+```
+
+```mermaid
+flowchart LR
+    subgraph Bus["Bus-Topologie"]
+        A["Node A"] --- B["Node B"] --- C["Node C"]
+    end
+
+    subgraph Star["Stern-Topologie"]
+        S["Switch/Hub"] --- D["Node D"]
+        S --- E["Node E"]
+        S --- F["Node F"]
+    end
+
+    subgraph PointToPoint["Punkt-zu-Punkt"]
+        P1["Endpoint 1"] --- P2["Endpoint 2"]
+    end
+```
+
+## Schlussfolgerungen und empfohlene Terminologie
+
+Die Begriffe aus den Notizen beschreiben (implizit) ein durchgängiges System: **Zeitbezug** (Clock/Takt) strukturiert „synchron/asynchron“, das Rollenmodell beeinflusst, wer taktet/koordiniert, die Richtung (uni/bidirektional) spiegelt sich in Leitungen (TX/RX oder geteilt) und schließlich bestimmt die **Topologie**, wie viele Teilnehmer sich Medien und Steuermechanismen teilen. Diese Kettenlogik lässt sich in normnahen Beispielen direkt wiederfinden (I²C: SDA/SCL, bidirektionaler Bus; USB‑Type‑C: Plug/Receptacle, CC‑Pins vs. Datenpfade) [NXP‑I2C], [USB‑Type‑C]. citeturn5view0turn8view1
+
+Für technische Dokumentation lassen sich – gestützt durch Leitfäden von NIST und ISO/IEC – folgende Terminologie‑Empfehlungen ableiten:
+
+Erstens: **Metaphern vermeiden, Rollen beschreiben.** „Master/Slave“ sollte durch kontextpassende Paare ersetzt werden, etwa controller/target (Bussteuerung), initiator/responder (Transaktionsrollen), primary/replica (Replikation) oder leader/follower (Aushandlungsrollen). Diese Alternativen sind in NIST‑/INCITS‑Beispielen und ISO/IEC‑Listen explizit genannt [NISTIR‑8366], [ISO/IEC‑List]. citeturn13view1turn23view0
+
+Zweitens: **Bei Zeitsynchronisation domänenspezifisch benennen.** Wo es um Zeitverteilung geht, ist timeTransmitter/timeReceiver fachlich näher als generische Hierarchiebegriffe; IEEE‑PTP führt genau diese Alternative ein [IEEE‑1588g]. citeturn1search24turn1search26
+
+Drittens: **Steckverbinder neutral und funktionsbasiert benennen.** Statt „male/female“ empfiehlt sich „Stecker/Buchse“ bzw. „plug/receptacle“, ggf. ergänzt um „pin/socket“ oder Gewinde‑Terminologie (Außen-/Innengewinde). ISO/IEC nennt „plugs and sockets“ explizit als bevorzugte Beschreibung und listet passende Ersatzwörter [ISO/IEC‑Guide], [ISO/IEC‑List]. citeturn10view1turn23view1
+
+Viertens: **Migration strategisch absichern.** Wo alte „terms of art“ tief verankert sind, ist eine **phasenweise Umstellung** mit explizitem Mapping sinnvoll (neuer Begriff zuerst, alter in Klammern; in Code ggf. als Kommentar), wie ISO/IEC es beschreibt; und mit Blick auf Verständlichkeit, wie NIST warnt [ISO/IEC‑Guide], [NISTIR‑8366]. citeturn10view2turn13view0
+
+## Quellen
+
+[NXP‑I2C] entity["company","NXP Semiconductors","semiconductor company"]: *UM10204 I²C‑bus specification and user manual, Rev. 7.0 (2021‑10‑01)*. citeturn5view0turn5view1turn7view1  
+[USB‑Type‑C] entity["organization","USB Implementers Forum","industry consortium"] (USB‑IF): *USB Type‑C® Cable and Connector Specification, Release 2.0 (Aug 2019)*. citeturn8view0turn8view1turn7view0  
+[NISTIR‑8366] NIST: *Guidance for NIST Staff on Using Inclusive Language in Documentary Standards (NISTIR 8366, April 2021)*. citeturn13view0turn13view1turn11view0turn12view0  
+[ISO/IEC‑Guide] ISO/IEC: *Guidance on the use of inclusive terminology in ISO and IEC documents (July 2024)*. citeturn9view0turn10view0turn10view1turn10view2  
+[ISO/IEC‑List] ISO/IEC: *Non‑inclusive terms and recommended alternatives for ISO and IEC documents* (Begleitliste). citeturn22view0turn23view0turn23view1turn23view2  
+[IETF‑RFC9454] IETF: *RFC 9454 – Update to OSPF Terminology* (Aug 2023). citeturn2search13turn4search2  
+[IEEE‑1588g] IEEE SA: *IEEE 1588‑2019; Amendment 1588g‑2022: Master‑Slave Optional Alternative Terminology* (Hinweis auf alternative Begriffe). citeturn1search24turn1search26  
+[IEEE‑3400] IEEE SA: *IEEE 3400‑2025 – IEEE Standard for Use of Inclusive Language in Technical Terminology and Communications* (Eintrag/Approval‑Listing). citeturn2search0turn2search8  
+[CiA‑Style] CAN in Automation: *CiA house style document* (2022‑03‑03) – Empfehlungen zu inklusiven Alternativen (master/slave; male/female). citeturn16view0turn15view0turn14view1  
+[IEEE‑Glossary‑610.7] IEEE: *IEEE Std 610.7‑1995, Glossary of Computer Networking Terminology* (Definition u. a. parallel transmission; handshaking; half‑duplex). citeturn20view0turn21view1turn21view0  
+[TI‑UART] Texas Instruments: *UART (TI Resource Explorer / Academy)* – UART ohne shared clock signal. citeturn17search0  
+[Microchip‑USART] Microchip: *use of the USART in asynchronous mode* (PDF) – kein clock signal im async Betrieb; TX/RX; Full‑Duplex. citeturn17search1  
+[IBM‑Serial] IBM Docs (AIX): *Serial communication* – Parallel‑zu‑Seriell‑Umwandlung und Rückwandlung. citeturn19search14  
+[RFC‑ABNF] IETF: *RFC 4234/5234 – ABNF for Syntax Specifications*. citeturn1search4turn1search12  
+[RFC‑HTTP‑Semantics] IETF: *RFC 9110 – HTTP Semantics*. citeturn1search1  
+[RFC‑HTTP‑Auth] IETF: *RFC 7235 – HTTP/1.1 Authentication* (Abschnitt „syntax and semantics“). citeturn1search20  
+[Cisco‑Topology] Cisco: *What Is Network Topology?* (physisch/logische Struktur, Datenfluss). citeturn17search22
